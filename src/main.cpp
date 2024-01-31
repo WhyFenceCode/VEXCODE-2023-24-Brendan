@@ -14,7 +14,7 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// PickupMotor          motor         10              
+// PickupMotor          motor         9               
 // Controller1          controller                    
 // RightMotor           motor         18              
 // LeftMotor            motor         13              
@@ -23,6 +23,8 @@
 #include "vex.h"
 
 using namespace vex;
+
+competition Competition;
 
 double map(double x, double a1, double a2, double b1, double b2) {
   return (x-a1)/(a2-a1) * (b2-b1)+b1;
@@ -79,8 +81,26 @@ void Drive() {
     }
 }
 
-int main() {
-  // Initializing Robot Configuration. DO NOT REMOVE!
+void pre_auton(){
   vexcodeInit();
-  Drive();
+}
+
+void autonomous(){
+  PickupMotor.setVelocity(25, percent); 
+  PickupMotor.spinFor(forward, 145, degrees); 
+  PickupMotor.setVelocity(100, percent); 
+}
+
+int main() {
+  // Set up callbacks for autonomous and driver control periods.
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(Drive);
+
+  // Run the pre-autonomous function.
+  pre_auton();
+
+  // Prevent main from exiting with an infinite loop.
+  while (true) {
+    wait(100, msec);
+  }
 }

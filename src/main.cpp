@@ -31,14 +31,15 @@ double map(double x, double a1, double a2, double b1, double b2) {
 }
 
 double speedcontroler() {
-    int difference = Controller1.Axis2.position(percent) - Controller1.Axis2.position(percent);
+    int difference = Controller1.Axis3.position(percent) - Controller1.Axis2.position(percent);
     if (difference < 0) {
         difference = -difference; // make the difference positive if it's negative
     }
     if (difference < 30) {
       difference = 0;
     }
-    double speed = map(difference, 200, 0, 0.5, 1.0);
+    printf("Difference: %d\n", difference);
+    double speed = map(difference, 200, 0, 0.9, 1.0);
     double modifier = 0.75;
     bool faster = Controller1.ButtonL1.pressing();
     bool fastest = Controller1.ButtonL2.pressing();
@@ -52,6 +53,7 @@ double speedcontroler() {
       modifier = 0.25;
     }
     speed *= modifier;
+    printf("Speed: %f\n", speed);
     return speed;
 }
 
@@ -59,24 +61,33 @@ void Drive() {
   LeftMotor.spin(forward);
   RightMotor.spin(forward);
   PickupMotor.spin(forward);
-        PickupMotor.setStopping(hold);
+  PickupMotor.setStopping(hold);
+  PickupMotor.setMaxTorque(100, percent);
   while (true) {
     double speed = speedcontroler();
 
     LeftMotor.setVelocity(speed*Controller1.Axis3.position(percent),percent);
-    RightMotor.setVelocity(speed*Controller1.Axis2.position(percent),percent);
-    if (Controller1.ButtonR1.pressing()) {
-      PickupMotor.setVelocity(-8,percent);
-    } else if (Controller1.ButtonR2.pressing()) {
-      PickupMotor.setVelocity(8,percent);
-    } else if (Controller1.ButtonUp.pressing()) {
-      PickupMotor.setVelocity(-3,percent);
-    } else if (Controller1.ButtonDown.pressing()) {
-      PickupMotor.setVelocity(3,percent);
-    } else {
-      PickupMotor.setVelocity(0,percent);
-    }
 
+    RightMotor.setVelocity(speed*Controller1.Axis2.position(percent),percent);
+    static double pickup_speed = 0;
+    if (Controller1.ButtonR1.pressing()) {
+      pickup_speed = -12;
+    } else if (Controller1.ButtonR2.pressing()) {
+      pickup_speed = 12;
+    } else if (Controller1.ButtonUp.pressing()) {
+      pickup_speed = -7;
+    } else if (Controller1.ButtonDown.pressing()) {
+      pickup_speed = 7;
+    } else {
+      pickup_speed = 0;
+    }
+    PickupMotor.setVelocity(pickup_speed,percent);
+    // printf("Speed: %f\n", speed);
+    // if (pickup_speed > 0) {
+    //   pickup_speed-= 0.2;
+    // } else if (pickup_speed < 0) {
+    //   pickup_speed+= 0.2;
+    // }
     task::sleep(10);
     }
 }
@@ -85,10 +96,26 @@ void pre_auton(){
   vexcodeInit();
 }
 
+void move(int speed, double distance){
+  LeftMotor.setVelocity(speed, percent);
+  RightMotor.setVelocity(speed, percent);
+  LeftMotor.spin(forward);
+  RightMotor.spinFor(forward, distance, turns);
+  LeftMotor.stop();
+}
+
 void autonomous(){
   PickupMotor.setVelocity(25, percent); 
-  PickupMotor.spinFor(forward, 145, degrees); 
-  PickupMotor.setVelocity(100, percent); 
+  PickupMotor.spinFor(forward, 120, degrees); 
+  PickupMotor.setVelocity(100, percent);
+  move(100, 4.25);
+  // left
+  LeftMotor.spinFor(reverse, 2.1, turns);
+  // right
+  // RightMotor.spinFor(reverse, 2.1, turns);
+  PickupMotor.setVelocity(25, percent); 
+  PickupMotor.spinFor(reverse, 85, degrees);
+  move (100, 4);
 }
 
 int main() {

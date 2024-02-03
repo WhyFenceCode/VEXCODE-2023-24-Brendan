@@ -5,6 +5,33 @@
 // Controller1          controller                    
 // RightMotor           motor         18              
 // LeftMotor            motor         13              
+// Claw                 motor         4               
+// ---- END VEXCODE CONFIGURED DEVICES ----
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// Catapult             motor         9               
+// Controller1          controller                    
+// RightMotor           motor         18              
+// LeftMotor            motor         13              
+// Claw                 motor         4               
+// ---- END VEXCODE CONFIGURED DEVICES ----
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// Catapult             motor         9               
+// Controller1          controller                    
+// RightMotor           motor         18              
+// LeftMotor            motor         13              
+// Claw                 motor         10              
+// ---- END VEXCODE CONFIGURED DEVICES ----
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// Catapult             motor         9               
+// Controller1          controller                    
+// RightMotor           motor         18              
+// LeftMotor            motor         13              
 // Claw                 motor         8               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 // ---- START VEXCODE CONFIGURED DEVICES ----
@@ -73,11 +100,12 @@ bool catapultOn = true;
 
 void caton(){
   if(catapultOn == true){
+    Catapult.spin(forward);
     catapultOn = false;
     Catapult.setVelocity(100, percent);
   }else{
     catapultOn = true;
-    Catapult.stop();
+    Catapult.setVelocity(0, percent);
   }
 }
 
@@ -115,17 +143,19 @@ double speedcontroler() {
 void Drive() {
   LeftMotor.spin(forward);
   RightMotor.spin(forward);
+  Claw.spin(forward);
+  Claw.setMaxTorque(100, percent);
   Controller1.ButtonX.pressed(caton);
 
   while (true) {
     double speed = speedcontroler();
 
     if (Controller1.ButtonR1.pressing()){
-      Claw.spin(forward);
+      Claw.setVelocity(-100, percent);
     } else if (Controller1.ButtonR2.pressing()){
-      Claw.spin(reverse);
+      Claw.setVelocity(100, percent);
     } else {
-      Claw.stop();
+      Claw.setVelocity(0, percent);
     }
 
     LeftMotor.setVelocity(speed*Controller1.Axis3.position(percent),percent);
@@ -148,9 +178,10 @@ void move(int speed, double distance){
 
 void autonomous(){
   Catapult.spin(forward);
+  RightMotor.spin(forward);
   Catapult.setVelocity(100, percent);
   RightMotor.setVelocity(100, percent);
-  LeftMotor.spinFor(reverse, 1, turns);
+  LeftMotor.spinFor(reverse, 2, turns);
   RightMotor.stop();
 }
 

@@ -178,11 +178,7 @@ void move(int speed, double distance){
 
 void autonomous(){
   Catapult.spin(forward);
-  RightMotor.spin(forward);
   Catapult.setVelocity(100, percent);
-  RightMotor.setVelocity(100, percent);
-  LeftMotor.spinFor(reverse, 2, turns);
-  RightMotor.stop();
 }
 
 int main() {
